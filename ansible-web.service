@@ -1,0 +1,15 @@
+[Unit]
+Description=Ansible Web Interface
+After=network.target
+
+[Service]
+Type=simple
+#WorkingDirectory=/home/ubuntu/ansible_interface
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/usr/bin/python3 /home/ubuntu/ansible_interface/manage.py runserver 0.0.0.0:80
+ExecStop=/bin/kill -s HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

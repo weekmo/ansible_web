@@ -1,0 +1,8 @@
+artifacts/
+*.sec
+*.gz
+*.tar
+*.zip
+*.retry
+*.sqlite3
+*/__pycache__/

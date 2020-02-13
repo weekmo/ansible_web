@@ -1,0 +1,8 @@
+version: '3'
+services:
+  web:
+#    build: .
+    image: ansible_web
+    command: bash -c "python3 manage.py runserver 0.0.0.0:80"
+    ports:
+      - "80:8000"

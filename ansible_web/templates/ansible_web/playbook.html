@@ -1,0 +1,18 @@
+{% now " H:i A, F jS, Y" as current_date_time%}
+{% url 'ansible_web:playbook' %}
+<h1>
+Welcome {{user.first_name|default:"Guest"}} {% if user.is_authenticated %}
+<a href="{% url 'logout' %}">logout</a>
+</h1>
+<p>
+First Name: {{user.first_name|capfirst}} </br>
+Last Name: {{user.last_name|capfirst}} </br>
+Email: {{user.email|capfirst|urlize}} </br>
+{{current_date_time}}
+</p>
+{% else %}
+<a href="{% url 'login' %}">login</a>
+{% endif %}
+
+{% lorem 5 p random %}
+<p>Copyright {{current_date_time}}</p>

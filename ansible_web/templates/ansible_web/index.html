@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>Home Page</title>
+{% endblock head %}
+{% block content %}
+<div class="float-left">
+<p>
+<button class="btn float-md-right btn-primary" onclick="window.location.href='{% url 'ansible_web:playbook-add' %}'">New Playbook</button>
+</p>
+<table class="table">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      <th scope="col">Details</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pl in playbooks %}
+      <tr>
+        <th scope="row">{{forloop.counter}}</th>
+        <td><a href="{% url 'ansible_web:get_playbook' pl.pk %}"> {{pl.name}}</a></td>
+        <td>{{pl.details}}</td>
+        <td>
+            <button class="btn btn-primary" onclick="set_run_command({{pl.pk}},1)" data-toggle="modal" data-target="#runModal">Run</button>
+            <button class="btn btn-primary" onclick="window.location.href='{% url 'ansible_web:playbook-edit' pl.pk %}'">Edit</button>
+            <!--<button class="btn btn-primary" onclick="window.location.href='{% url 'ansible_web:delete_playbook' pl.pk %}'">Delete</button>-->
+            <button class="btn btn-primary" onclick="set_run_command({{pl.pk}},2)" data-toggle="modal" data-target="#runModal">Delete</button>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<!-- Button trigger modal
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+  Launch demo modal
+</button> -->
+
+<!-- Modal -->
+<div class="modal fade" id="runModal" tabindex="-1" role="dialog" aria-labelledby="runModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="runModalLabel">Running Ansible Playbook</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="runModalBody">
+        Do you want to run the Ansible playbook?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="confirmRun" data-dismiss="modal">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="float-right" id="cmd-output"></dive>
+
+<script>
+var chatSocket = new WebSocket('ws://' + window.location.host + '/ws/channel/');
+chatSocket.onmessage = function(e) {
+  var data = JSON.parse(e.data);
+  var message = data['message'];
+  document.querySelector('#cmd-output').innerHTML += (message + '<br/>');
+};
+
+chatSocket.onclose = function(e) {
+  console.error("Disconnected: " + e.reason);
+};
+
+chatSocket.onopen = function (e) {      
+  document.querySelector('#cmd-output').innerHTML += ('Connection is established<br/>');
+}
+
+function set_run_command(pk,commmand_num){
+  // equivalent to $(document).ready()
+  $(function(){
+    // run playbook
+    var modal_body = "Do you want to run the Ansible playbook?";
+    var modal_head = "Running Ansible Playbook";
+    if(commmand_num == 1){
+      $('#confirmRun').attr('onclick','exec_playbook('+pk+')');
+
+      // delete playbook
+    } else if(commmand_num == 2){
+      modal_body = "Do you want to delete the Ansible playbook?";
+      modal_head = "Deleting Ansible Playbook";
+      $('#confirmRun').attr('onclick',"window.location.href='/delete_playbook/"+pk+"'")
+    }
+    $('#runModalBody').text(modal_body);
+    $('#runModalLabel').text(modal_head);
+  });
+}
+
+function exec_playbook(pk){
+  //$("#runModal").modal('hide');
+  document.querySelector('#cmd-output').innerHTML += ('Process has started, it could takes some time, please be patient.<br/>');
+  chatSocket.send(JSON.stringify({
+    'pk': pk
+  }));
+}
+</script>
+{% endblock content %}

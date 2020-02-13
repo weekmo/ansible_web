@@ -1,0 +1,5 @@
+django
+pyyaml
+channels
+channels_redis
+django-crispy-forms

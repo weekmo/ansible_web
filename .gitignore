@@ -1,0 +1,10 @@
+*.env
+*.log
+*.gz
+*.tar
+*.zip
+*.retry
+*.sqlite3
+__pycache__/
+#ansible/
+.vscode
